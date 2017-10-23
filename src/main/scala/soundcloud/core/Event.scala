@@ -7,7 +7,7 @@ case class Event(sequenceId: Int,
 
 	override def compare(that: Event): Int = this.sequenceId.compareTo(that.sequenceId)
 
-	override def toString = this.productIterator.collect {
+	override def toString: String = this.productIterator.collect {
 			case Some(parameter) => parameter
 			case parameter if parameter != None => parameter
 		}.mkString("|")

@@ -55,7 +55,7 @@ class registrationServer extends Actor {
 }
 
 class ClientHandler extends Actor {
-	private var tcpHandler: ActorRef = null
+	private var tcpHandler: ActorRef = _
 	import soundcloud.globalApp._
 
 	def receive = {
