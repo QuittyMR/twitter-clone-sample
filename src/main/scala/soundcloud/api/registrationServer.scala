@@ -15,7 +15,6 @@ import soundcloud.core.entities.UserRepository
 class registrationServer extends Actor {
 
 	import soundcloud.globalApp._
-	import context.system
 
 	private val tcpManager: ActorRef = IO(Tcp)
 
@@ -60,7 +59,7 @@ class registrationServer extends Actor {
 }
 
 class ClientHandler(remote: InetSocketAddress) extends Actor {
-	private var tcpHandler:ActorRef = null
+	private var tcpHandler: ActorRef = null
 
 	def receive = {
 		case Tcp.Received(message) =>
@@ -74,38 +73,32 @@ class ClientHandler(remote: InetSocketAddress) extends Actor {
 }
 
 class EventHandler extends Actor {
+
 	def receive = {
 		case Tcp.Received(data) =>
 			data.utf8String.split('\n').map(message => Event(message)).sorted.foreach { event =>
-				var logMessage = ""
 				event.messageType match {
 					case 'F' =>
-						UserRepository.follow(event.toUser.get, event.fromUser.get) match {
-							case Some(user) =>
-								UserRepository.notify(user, event.toString)
-							case _ =>
-								logMessage = "User does not exist"
-						}
+						UserRepository.follow(event.toUser.get, event.fromUser.get).foreach(user =>
+							UserRepository.notify(user, event)
+						)
 					case 'U' =>
 						UserRepository.unfollow(event.toUser.get, event.fromUser.get)
 					case 'B' =>
-						logMessage = s"This is a public service announcement!"
+						UserRepository.getAll.foreach(user => UserRepository.notify(user, event))
 					case 'P' =>
-						logMessage = s"User ${event.fromUser.get} sends his regards to ${event.toUser.get}"
-						UserRepository.get(event.toUser.get) match {
-							case Some(user) =>
-								UserRepository.notify(user, event.toString)
-							case _ =>
-						}
-
+						UserRepository.get(event.toUser.get).foreach(user =>
+							UserRepository.notify(user, event)
+						)
 					case 'S' =>
-						logMessage = s"User ${event.fromUser.get} sends a status update"
+						UserRepository.get(event.fromUser.get).foreach(user =>
+							user.followers.flatMap(UserRepository.get).foreach(user =>
+								UserRepository.notify(user, event)
+							)
+						)
 				}
-//				log.info(s"${event.sequenceId} $logMessage")
 			}
 		case Tcp.PeerClosed =>
 			context.stop(self)
-		case message: String =>
-			println("Fuck me")
 	}
 }

@@ -1,6 +1,7 @@
 package soundcloud.core.entities
 
 import akka.actor.ActorRef
+import soundcloud.core.Event
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -8,6 +9,7 @@ case class User(id: Int, actor: ActorRef, followers: ArrayBuffer[Int] = ArrayBuf
 }
 
 object UserRepository {
+	import soundcloud.globalApp._
 
 	private var users: Map[Int, User] = Map()
 
@@ -36,8 +38,11 @@ object UserRepository {
 
 	def getByHandler(actorRef: ActorRef): Option[User] = users.values.find(_.actor == actorRef)
 
-	def notify(user: User, message: String): Unit = {
-		user.actor ! message + "\n"
+	def getAll: Iterable[User] = users.values
+
+	def notify(user: User, message: Event): Unit = {
+		log.info(s"Notifying ${user.id} of ${message.toString}")
+		user.actor ! message.toString + "\n"
 	}
 
 }
