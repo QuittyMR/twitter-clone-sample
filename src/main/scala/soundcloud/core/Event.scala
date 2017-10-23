@@ -6,6 +6,11 @@ case class Event(sequenceId: Int,
 				 toUser: Option[Int] = None) extends Ordered[Event] {
 
 	override def compare(that: Event): Int = this.sequenceId.compareTo(that.sequenceId)
+
+	override def toString = this.productIterator.map {
+		case Some(parameter) => parameter
+		case parameter => parameter
+	}.mkString("|")
 }
 
 object Event {
