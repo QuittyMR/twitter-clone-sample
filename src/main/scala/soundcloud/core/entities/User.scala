@@ -4,24 +4,35 @@ import akka.actor.ActorRef
 import soundcloud.core.Event
 
 import scala.collection.mutable.ArrayBuffer
+import java.util.concurrent.ConcurrentHashMap
 
-case class User(id: Int, actor: ActorRef, followers: ArrayBuffer[Int] = ArrayBuffer()) {
+import scala.collection.mutable
+import scala.collection.convert.decorateAsScala._
+
+case class User(id: Int, actor: Option[ActorRef], followers: ArrayBuffer[Int] = ArrayBuffer()) {
 }
 
 object UserRepository {
+
 	import soundcloud.globalApp._
 
-	private var users: Map[Int, User] = Map()
+	private val users: mutable.Map[Int, User] = new ConcurrentHashMap[Int, User]().asScala
 
-	def add(userId: Int, actor: ActorRef): Unit = users += userId -> User(userId, actor)
+	def add(userId: Int, actor: Option[ActorRef]): User = {
+		val user = User(userId, actor)
+		users += (userId -> user)
+		user
+	}
 
-	def follow(userId: Int, followerId: Int): Option[User] = {
+	def follow(userId: Int, followerId: Int): User = {
 		get(userId) match {
 			case Some(user) =>
 				user.followers += followerId
-				Option(user)
+				user
 			case _ =>
-				None
+				log.debug(s"Falsifying record for $userId")
+				add(userId, None)
+				follow(userId, followerId)
 		}
 	}
 
@@ -34,15 +45,18 @@ object UserRepository {
 		}
 	}
 
-	def get(id: Int): Option[User] = users.get(id)
+	def get(userId: Int): Option[User] = users.get(userId)
 
 	def getByHandler(actorRef: ActorRef): Option[User] = users.values.find(_.actor == actorRef)
 
 	def getAll: Iterable[User] = users.values
 
 	def notify(user: User, message: Event): Unit = {
-		log.info(s"Notifying ${user.id} of ${message.toString}")
-		user.actor ! message.toString + "\n"
+		user.actor match {
+			case Some(actor) =>
+				actor ! (message.toString + "\n")
+			case _ =>
+				log.debug(s"User ${user.id} not registered")
+		}
 	}
-
 }

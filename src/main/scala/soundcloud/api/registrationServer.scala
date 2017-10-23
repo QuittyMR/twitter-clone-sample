@@ -45,26 +45,25 @@ class registrationServer extends Actor {
 		case Tcp.Connected(remote, local) =>
 			local.getPort match {
 				case 9090 =>
-					sender() ! Tcp.Register(system.actorOf(Props[EventHandler], "eventHandler"))
+					val actor = system.actorOf(Props[EventHandler], "eventHandler")
+					sender() ! Tcp.Register(actor)
 				case 9099 =>
-					val actorName = remote.toString.substring(1)
-					val actor = system.actorOf(Props(classOf[ClientHandler], remote), actorName)
-					val register = Tcp.Register(actor, useResumeWriting = false)
-					sender() ! register
+					val actor = system.actorOf(Props(classOf[ClientHandler]), s"client-${remote.getPort.toString}")
+					sender() ! Tcp.Register(actor)
 			}
-
-		case Tcp.Received(message) =>
-			println("Reached here")
 	}
 }
 
-class ClientHandler(remote: InetSocketAddress) extends Actor {
+class ClientHandler extends Actor {
 	private var tcpHandler: ActorRef = null
+	import soundcloud.globalApp._
 
 	def receive = {
 		case Tcp.Received(message) =>
 			tcpHandler = sender()
-			UserRepository.add(message.utf8String.stripLineEnd.toInt, self)
+			val userId = message.utf8String.stripLineEnd.toInt
+			UserRepository.add(userId, Option(self))
+			log.debug(s"Registered user $userId to ${self.path.name}")
 		case Tcp.PeerClosed =>
 			context.stop(self)
 		case message: String =>
@@ -73,20 +72,20 @@ class ClientHandler(remote: InetSocketAddress) extends Actor {
 }
 
 class EventHandler extends Actor {
-
+	import soundcloud.globalApp._
 	def receive = {
 		case Tcp.Received(data) =>
 			data.utf8String.split('\n').map(message => Event(message)).sorted.foreach { event =>
 				event.messageType match {
 					case 'F' =>
-						UserRepository.follow(event.toUser.get, event.fromUser.get).foreach(user =>
-							UserRepository.notify(user, event)
-						)
+						val user = UserRepository.follow(event.toUser.get, event.fromUser.get)
+						UserRepository.notify(user, event)
 					case 'U' =>
 						UserRepository.unfollow(event.toUser.get, event.fromUser.get)
 					case 'B' =>
 						UserRepository.getAll.foreach(user => UserRepository.notify(user, event))
 					case 'P' =>
+						log.info(s"Need user ${event.toUser.get}")
 						UserRepository.get(event.toUser.get).foreach(user =>
 							UserRepository.notify(user, event)
 						)
