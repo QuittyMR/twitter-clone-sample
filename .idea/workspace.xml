@@ -13,12 +13,7 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/scala-2.11/classes/soundcloud/core/entities/UserRepository$$anonfun$getByHandler$1.class" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/soundcloud/core/entities/UserRepository$$anonfun$getByHandler$1.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/scala-2.11/classes/soundcloud/core/entities/UserRepository$.class" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/soundcloud/core/entities/UserRepository$.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/scala-2.11/classes/soundcloud/core/entities/UserRepository.class" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/soundcloud/core/entities/UserRepository.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/application.conf" afterPath="$PROJECT_DIR$/src/main/resources/application.conf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/soundcloud/api/registrationServer.scala" afterPath="$PROJECT_DIR$/src/main/scala/soundcloud/api/registrationServer.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/soundcloud/core/Event.scala" afterPath="$PROJECT_DIR$/src/main/scala/soundcloud/core/Event.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/soundcloud/core/entities/User.scala" afterPath="$PROJECT_DIR$/src/main/scala/soundcloud/core/entities/User.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/scala-2.11/classes/application.conf" afterPath="$PROJECT_DIR$/target/scala-2.11/classes/application.conf" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -472,12 +467,20 @@
       <updated>1508611557673</updated>
       <workItem from="1508611560514" duration="28734000" />
       <workItem from="1508665491114" duration="4242000" />
-      <workItem from="1508686164267" duration="39982000" />
+      <workItem from="1508686164267" duration="40085000" />
     </task>
+    <task id="LOCAL-00001" summary="Refactoring, &#10;Event actions (WIP),&#10;broken client outgoing TCP">
+      <created>1508755122750</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1508755122750</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="72958000" />
+    <option name="totallyTimeSpent" value="73061000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -522,6 +525,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Refactoring, &#10;Event actions (WIP),&#10;broken client outgoing TCP" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactoring, &#10;Event actions (WIP),&#10;broken client outgoing TCP" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
