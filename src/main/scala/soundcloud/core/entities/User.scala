@@ -37,7 +37,7 @@ object UserRepository {
 	def getByHandler(actorRef: ActorRef): Option[User] = users.values.find(_.actor == actorRef)
 
 	def notify(user: User, message: String): Unit = {
-		user.actor ! message
+		user.actor ! message + "\n"
 	}
 
 }

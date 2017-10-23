@@ -3,7 +3,6 @@ package soundcloud.api
 import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorRef, Props}
-import akka.io.Tcp.{CommandFailed, Connect}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import soundcloud.core.Event
@@ -50,17 +49,9 @@ class registrationServer extends Actor {
 					sender() ! Tcp.Register(system.actorOf(Props[EventHandler], "eventHandler"))
 				case 9099 =>
 					val actorName = remote.toString.substring(1)
-//					log.debug(s"Registered a handler for $actorName")
-//					println(s"Registering ${sender()}")
 					val actor = system.actorOf(Props(classOf[ClientHandler], remote), actorName)
 					val register = Tcp.Register(actor, useResumeWriting = false)
-					import akka.pattern.ask
-					(tcpManager ? Connect(remote)).onSuccess {
-						case something =>
-							println(something)
-					}
 					sender() ! register
-
 			}
 
 		case Tcp.Received(message) =>
@@ -69,31 +60,20 @@ class registrationServer extends Actor {
 }
 
 class ClientHandler(remote: InetSocketAddress) extends Actor {
-	import soundcloud.globalApp._
-	import context.system
-
-	private var tcpClient:ActorRef = null
+	private var tcpHandler:ActorRef = null
 
 	def receive = {
 		case Tcp.Received(message) =>
-			tcpClient = sender()
-			if (message.utf8String.stripLineEnd == "283") {
-				println(s"Actor is ${tcpClient.path.name}")
-			}
+			tcpHandler = sender()
 			UserRepository.add(message.utf8String.stripLineEnd.toInt, self)
-			log.debug(UserRepository.get(message.utf8String.stripLineEnd.toInt).toString)
 		case Tcp.PeerClosed =>
 			context.stop(self)
 		case message: String =>
-			println(s"Messaging $message to $tcpClient")
-			tcpClient ! Tcp.Write(ByteString(message))
+			tcpHandler ! Tcp.Write(ByteString(message))
 	}
 }
 
 class EventHandler extends Actor {
-
-	import soundcloud.globalApp._
-
 	def receive = {
 		case Tcp.Received(data) =>
 			data.utf8String.split('\n').map(message => Event(message)).sorted.foreach { event =>
@@ -102,23 +82,19 @@ class EventHandler extends Actor {
 					case 'F' =>
 						UserRepository.follow(event.toUser.get, event.fromUser.get) match {
 							case Some(user) =>
-//								UserRepository.notify(user, event.toString)
-								logMessage = s"User ${event.fromUser.get} follows ${event.toUser.get}"
+								UserRepository.notify(user, event.toString)
 							case _ =>
 								logMessage = "User does not exist"
 						}
 					case 'U' =>
 						UserRepository.unfollow(event.toUser.get, event.fromUser.get)
-						logMessage = s"User ${event.fromUser.get} un-follows ${event.toUser.get}"
 					case 'B' =>
 						logMessage = s"This is a public service announcement!"
 					case 'P' =>
 						logMessage = s"User ${event.fromUser.get} sends his regards to ${event.toUser.get}"
 						UserRepository.get(event.toUser.get) match {
 							case Some(user) =>
-//								UserRepository.notify(user, event.toString)
-								println(s"User actor is ${user.actor}")
-								user.actor ! event.toString
+								UserRepository.notify(user, event.toString)
 							case _ =>
 						}
 
