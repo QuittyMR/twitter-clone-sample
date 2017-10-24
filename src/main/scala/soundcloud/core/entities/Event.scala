@@ -1,5 +1,11 @@
-package soundcloud.core
+package soundcloud.core.entities
 
+/**
+  * Contains utility methods that allow for implicit or inline actions and cleaner code elsewhere.
+  *
+  * Dev-note: it could be interesting to try and build implicit conversions from string to event and vice-versa.
+  * Interesting is all it could be though. Nobody likes implicits.
+  */
 case class Event(sequenceId: Int,
 				 messageType: Char,
 				 fromUser: Option[Int] = None,
