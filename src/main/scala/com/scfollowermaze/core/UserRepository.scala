@@ -1,9 +1,9 @@
-package soundcloud.core
+package com.scfollowermaze.core
 
 import java.util.concurrent.ConcurrentHashMap
 
 import akka.actor.ActorRef
-import soundcloud.core.entities.{Event, User}
+import com.scfollowermaze.core.entities.{Event, User}
 
 import scala.collection.convert.decorateAsScala._
 import scala.collection.mutable
@@ -20,11 +20,11 @@ import scala.collection.mutable
   */
 object UserRepository {
 
-	import soundcloud.GlobalApp._
+	import com.scfollowermaze.GlobalApp._
 
 	private val users: mutable.Map[Int, User] = new ConcurrentHashMap[Int, User]().asScala
 
-	def add(userId: Int, actor: Option[ActorRef]): User = {
+	def add(userId: Int, actor: Option[ActorRef] = None): User = {
 		val user = User(userId, actor)
 		users += (userId -> user)
 		user
@@ -40,12 +40,12 @@ object UserRepository {
 				user
 			case _ =>
 				log.debug(s"Falsifying record for $userId")
-				add(userId, None)
+				add(userId)
 				follow(followerId, userId)
 		}
 	}
 
-	def unfollow(userId: Int, followerId: Int): Unit = {
+	def unfollow(followerId: Int, userId: Int): Unit = {
 		get(userId) match {
 			case Some(user) =>
 				user.followers -= followerId

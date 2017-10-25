@@ -1,4 +1,4 @@
-package soundcloud.core.entities
+package com.scfollowermaze.core.entities
 
 /**
   * Contains utility methods that allow for implicit or inline actions and cleaner code elsewhere.

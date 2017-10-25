@@ -1,4 +1,4 @@
-package soundcloud.api
+package com.scfollowermaze.api
 
 import java.net.InetSocketAddress
 
@@ -17,7 +17,7 @@ import akka.io.{IO, Tcp}
 
 class RegistrationHandler extends Actor {
 
-	import soundcloud.GlobalApp._
+	import com.scfollowermaze.GlobalApp._
 
 	private val hostname: String = config.getString("server.host")
 	private val eventPort: Int = config.getInt("server.event.port")
@@ -38,16 +38,19 @@ class RegistrationHandler extends Actor {
 		case Tcp.CommandFailed(_: Tcp.Bind) =>
 			context.stop(self)
 		case binding@Tcp.Bound(localAddress) =>
+			sender() ! binding
 			context.parent ! binding
 			println(s"Server listening on $localAddress")
 		case Tcp.Connected(remote, local) =>
 			local.getPort match {
 				case `eventPort` =>
-					val actor = system.actorOf(Props[EventHandler].withDispatcher("akka.actor.eventDispatcher"), "eventHandler")
+					val actor = system.actorOf(Props[EventHandler], "eventHandler")
 					sender() ! Tcp.Register(actor)
 				case `clientPort` =>
 					val actor = system.actorOf(Props(classOf[ClientHandler]), s"clientHandler:${remote.getPort.toString}")
 					sender() ! Tcp.Register(actor)
+				case _ =>
+					log.error("Invalid port connection request received")
 			}
 	}
 }

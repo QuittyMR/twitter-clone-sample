@@ -1,4 +1,4 @@
-package soundcloud.core.entities
+package com.scfollowermaze.core.entities
 
 import akka.actor.ActorRef
 
