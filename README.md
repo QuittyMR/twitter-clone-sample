@@ -1,8 +1,10 @@
-# SC follower-maze
+# Twitter clone (massively concurrent pub/sub)
 
 ## Overview
 
 This app uses Akka actors to provide a massively concurrent socket server.
+It was done in response to a technical challenge issued by Soundcloud, 
+who also graciously supplied the virtual clients.
 Using actors as small, decoupled work-units allows this server to maintain
 a constant memory signature and pretty decent performance, while being
 easily expandable and hopefully maintainable as well.
