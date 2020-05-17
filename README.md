@@ -55,7 +55,7 @@ and with that resource usage, AWS will let this run on free-tier. Akka actors ar
 
 ## Tests
 The best integration or stress test i could possibly think
-up for this application is what was provided by you as a test case in the
+up for this application is what was provided by Soundcloud as a test case in the
 follower-maze jar.
 
 What's left for me was simple integration/unit tests, more to provide
